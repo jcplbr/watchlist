@@ -5,7 +5,7 @@ import { Command } from "cmdk";
 
 export function CommandMenu() {
   const ref = React.useRef<HTMLDivElement | null>(null);
-  const [inputValue, setInputValue] = React.useState("");
+  const [inputValue, setInputValue] = React.useState<string>("");
   const [pages, setPages] = React.useState<string[]>(["home"]);
   const activePage = pages[pages.length - 1];
   const isHome = activePage === "home";
@@ -38,11 +38,10 @@ export function CommandMenu() {
           bounce();
         }
 
-        if (isHome || inputValue.length) {
-          return;
-        }
-
-        if (e.key === "Backspace") {
+        if (
+          (e.key === "Escape" && !isHome) ||
+          (e.key === "Backspace" && !inputValue)
+        ) {
           e.preventDefault();
           popPage();
           bounce();
@@ -83,6 +82,7 @@ export function CommandMenu() {
         onValueChange={(value) => {
           setInputValue(value);
         }}
+        value={inputValue}
       />
       <Command.List>
         <Command.Empty>No results found.</Command.Empty>
