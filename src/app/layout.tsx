@@ -1,3 +1,4 @@
+import Providers from "@/components/providers";
 import "./globals.scss";
 import { Inter } from "next/font/google";
 
@@ -5,7 +6,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Watchlist",
-  description: "Browse through thousands of movies and TV shows.",
+  description: "Browse through thousands of movies and manage your watchlist.",
 };
 
 export default function RootLayout({
@@ -15,7 +16,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <Providers>
+        <body className={inter.className}>{children}</body>
+      </Providers>
     </html>
   );
 }

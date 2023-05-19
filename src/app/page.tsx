@@ -1,4 +1,4 @@
-import { CommandMenu } from "@/components/command";
+import { CommandMenu } from "@/components/command-menu";
 
 export default function Home() {
   return (

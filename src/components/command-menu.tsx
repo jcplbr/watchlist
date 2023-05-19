@@ -2,6 +2,9 @@
 
 import React from "react";
 import { Command } from "cmdk";
+import { useMutation } from "@tanstack/react-query";
+import { nanoid } from "nanoid";
+import { Message } from "@/lib/validators/message";
 
 export function CommandMenu() {
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -30,6 +33,23 @@ export function CommandMenu() {
     }
   }
 
+  const { mutate: sendMessage, isLoading } = useMutation({
+    mutationFn: async (message: Message) => {
+      const res = await fetch("/api/message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ messages: "Hello" }),
+      });
+
+      return res.body;
+    },
+    onSuccess: () => {
+      console.log("success");
+    },
+  });
+
   return (
     <Command
       ref={ref}
@@ -40,7 +60,7 @@ export function CommandMenu() {
 
         if (
           (e.key === "Escape" && !isHome) ||
-          (e.key === "Backspace" && !inputValue)
+          (e.key === "Backspace" && !inputValue && !isHome)
         ) {
           e.preventDefault();
           popPage();
@@ -65,8 +85,8 @@ export function CommandMenu() {
       <Command.Input
         autoFocus
         placeholder={
-          activePage === "search"
-            ? "Search Movies, TV Shows..."
+          activePage === "movies"
+            ? "Search Movies..."
             : activePage === "ask AI"
             ? "Ask AI for recommendations..."
             : activePage === "to watch"
@@ -83,19 +103,36 @@ export function CommandMenu() {
           setInputValue(value);
         }}
         value={inputValue}
+        onKeyDown={(e: React.KeyboardEvent) => {
+          if (activePage === "ask AI" && e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+
+            const message = {
+              id: nanoid(),
+              isUserMessage: true,
+              text: inputValue,
+            };
+
+            sendMessage(message);
+          }
+        }}
       />
       <Command.List>
-        <Command.Empty>No results found.</Command.Empty>
+        {activePage === "ask AI" ? (
+          <Command.Empty>No messages yet.</Command.Empty>
+        ) : (
+          <Command.Empty>No results found.</Command.Empty>
+        )}
         {activePage === "home" && (
           <Home
-            searchMovies={() => setPages([...pages, "search"])}
+            searchMovies={() => setPages([...pages, "movies"])}
             askAI={() => setPages([...pages, "ask AI"])}
             toWatch={() => setPages([...pages, "to watch"])}
             watching={() => setPages([...pages, "watching"])}
             watched={() => setPages([...pages, "watched"])}
           />
         )}
-        {activePage === "search" && <Movies />}
+        {activePage === "movies" && <Movies />}
         {activePage === "ask AI" && <AskAI />}
         {activePage === "to watch" && <ToWatch />}
         {activePage === "watching" && <Watching />}
@@ -122,13 +159,13 @@ function Home({
     <>
       <Command.Group heading="Explore">
         <Item
-          shortcut="⇧ S"
+          shortcut="⇧ M"
           onSelect={() => {
             searchMovies();
           }}
         >
           <SearchIcon />
-          Search Movies, TV Shows...
+          Search Movies...
         </Item>
         <Item
           onSelect={() => {
@@ -146,7 +183,7 @@ function Home({
             toWatch();
           }}
         >
-          <DotIcon />
+          <ToWatchIcon />
           Search To Watch...
         </Item>
         <Item
@@ -154,7 +191,7 @@ function Home({
             watching();
           }}
         >
-          <DotIcon />
+          <WatchingIcon />
           Search Watching...
         </Item>
         <Item
@@ -162,7 +199,7 @@ function Home({
             watched();
           }}
         >
-          <DotIcon />
+          <WatchedIcon />
           Search Watched...
         </Item>
       </Command.Group>
@@ -190,13 +227,7 @@ function Movies() {
 }
 
 function AskAI() {
-  return (
-    <Command.Group>
-      <Item>Project 1</Item>
-      <Item>Project 2</Item>
-      <Item>Project 3</Item>
-    </Command.Group>
-  );
+  return <Command.Group>Messages</Command.Group>;
 }
 
 function ToWatch() {
@@ -224,7 +255,6 @@ function Watched() {
       <Item>Project 3</Item>
       <Item>Project 4</Item>
       <Item>Project 5</Item>
-      <Item>Project 6</Item>
     </Command.Group>
   );
 }
@@ -294,7 +324,7 @@ function WandIcon() {
   );
 }
 
-function DotIcon() {
+function ToWatchIcon() {
   return (
     <svg
       width="24"
@@ -302,12 +332,51 @@ function DotIcon() {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="1.5"
+      stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"
     >
       <circle cx="12" cy="12" r="10"></circle>
-      <circle cx="12" cy="12" r="1"></circle>
+    </svg>
+  );
+}
+
+function WatchingIcon() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="12" cy="12" r="10"></circle>
+      <path
+        d="M12,2 a5,5 0 0,1 0,10 Z"
+        fill="currentColor"
+        transform="translate(0,5)"
+      ></path>
+    </svg>
+  );
+}
+
+function WatchedIcon() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="12" cy="12" r="10"></circle>
+      <circle cx="12" cy="12" r="5" fill="currentColor"></circle>
     </svg>
   );
 }
