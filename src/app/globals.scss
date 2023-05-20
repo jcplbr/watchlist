@@ -301,5 +301,9 @@ a {
   justify-content: center;
   height: 48px;
   white-space: pre-wrap;
-  color: var(--gray11);
+  color: var(--gray9);
+
+  & span {
+    color: var(--gray12);
+  }
 }

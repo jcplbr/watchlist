@@ -40,13 +40,24 @@ export function CommandMenu() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ messages: "Hello" }),
+        body: JSON.stringify({ messages: [message] }),
       });
 
       return res.body;
     },
-    onSuccess: () => {
-      console.log("success");
+    onSuccess: async (stream) => {
+      if (!stream) throw new Error("No stream found.");
+
+      const reader = stream.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        const chunkValue = decoder.decode(value);
+        console.log("chunkValue", chunkValue);
+      }
     },
   });
 
@@ -119,9 +130,11 @@ export function CommandMenu() {
       />
       <Command.List>
         {activePage === "ask AI" ? (
-          <Command.Empty>No messages yet.</Command.Empty>
+          <Command.Empty>No messages yet</Command.Empty>
         ) : (
-          <Command.Empty>No results found.</Command.Empty>
+          <Command.Empty>
+            No results for &quot;<span>{inputValue}</span>&quot;
+          </Command.Empty>
         )}
         {activePage === "home" && (
           <Home
@@ -227,7 +240,11 @@ function Movies() {
 }
 
 function AskAI() {
-  return <Command.Group>Messages</Command.Group>;
+  return (
+    <Command.Group>
+      <Item>Messages</Item>
+    </Command.Group>
+  );
 }
 
 function ToWatch() {
@@ -290,9 +307,9 @@ function SearchIcon() {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <circle cx="11" cy="11" r="8"></circle>
       <line x1="21" x2="16.65" y1="21" y2="16.65"></line>
@@ -308,9 +325,9 @@ function WandIcon() {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"></path>
       <path d="m14 7 3 3"></path>
@@ -332,9 +349,9 @@ function ToWatchIcon() {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <circle cx="12" cy="12" r="10"></circle>
     </svg>
@@ -349,9 +366,9 @@ function WatchingIcon() {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <circle cx="12" cy="12" r="10"></circle>
       <path
@@ -371,9 +388,9 @@ function WatchedIcon() {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <circle cx="12" cy="12" r="10"></circle>
       <circle cx="12" cy="12" r="5" fill="currentColor"></circle>
@@ -389,9 +406,9 @@ function LaptopIcon() {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <rect width="18" height="12" x="3" y="4" rx="2" ry="2"></rect>
       <line x1="2" x2="22" y1="20" y2="20"></line>
@@ -407,9 +424,9 @@ function SunIcon() {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <circle cx="12" cy="12" r="4"></circle>
       <path d="M12 2v2"></path>
@@ -432,9 +449,9 @@ function MoonIcon() {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
     </svg>
