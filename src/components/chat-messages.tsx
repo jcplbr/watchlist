@@ -24,7 +24,6 @@ const ChatMessages: FC<ChatMessagesProps> = ({}) => {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                marginTop: "0.5rem",
                 overflowX: "hidden",
                 order: message.isUserMessage ? "1" : "2",
                 alignItems: message.isUserMessage ? "flex-end" : "flex-start",
@@ -32,9 +31,11 @@ const ChatMessages: FC<ChatMessagesProps> = ({}) => {
             >
               <p
                 style={{
+                  padding: "12px 16px",
+                  borderRadius: "8px",
                   background: message.isUserMessage
-                    ? "var(--blue7)"
-                    : "var(--gray7)",
+                    ? "var(--blue5)"
+                    : "var(--grayA4)",
                 }}
               >
                 <MarkdownLite text={message.text} />

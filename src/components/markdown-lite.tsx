@@ -31,7 +31,7 @@ const MarkdownLite: FC<MarkdownLiteProps> = ({ text }) => {
           overflowWrap: "break-word",
           textDecoration: "underline",
           textUnderlineOffset: "2px",
-          color: "var(--blue9)",
+          color: "var(--gray12)",
         }}
       >
         {linkText}

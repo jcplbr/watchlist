@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext } from "react";
+import React, { HTMLAttributes, useContext } from "react";
 import { Command } from "cmdk";
 import {
   LaptopIcon,
@@ -116,6 +116,7 @@ export function CommandMenu() {
 
   return (
     <Command
+      shouldFilter={activePage === "ask AI" ? false : true}
       ref={ref}
       onKeyDown={(e: React.KeyboardEvent) => {
         if (e.key === "Enter") {
@@ -149,6 +150,7 @@ export function CommandMenu() {
       <Command.Input
         ref={inputRef}
         autoFocus
+        disabled={isLoading}
         placeholder={
           activePage === "movies"
             ? "Search Movies..."
@@ -311,7 +313,7 @@ function Movies() {
 function AskAI() {
   return (
     <Command.Group>
-      <Item>
+      <Item className="ai-item">
         <ChatMessages />
       </Item>
     </Command.Group>
@@ -390,13 +392,15 @@ function Item({
   children,
   shortcut,
   onSelect = () => {},
+  className,
 }: {
   children: React.ReactNode;
   shortcut?: string;
   onSelect?: (value: string) => void;
+  className?: string;
 }) {
   return (
-    <Command.Item onSelect={onSelect}>
+    <Command.Item className={className} onSelect={onSelect}>
       {children}
       {shortcut && (
         <div cmdk-vercel-shortcuts="">
