@@ -116,7 +116,7 @@ export function CommandMenu() {
 
   return (
     <Command
-      shouldFilter={activePage === "ask AI" ? false : true}
+      shouldFilter={activePage !== "ask AI"}
       ref={ref}
       onKeyDown={(e: React.KeyboardEvent) => {
         if (e.key === "Enter") {

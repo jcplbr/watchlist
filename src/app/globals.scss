@@ -94,8 +94,8 @@
 }
 
 ::selection {
-  background: hotpink;
-  color: white;
+  background: var(--blue5);
+  // color: white;
 }
 
 html,
@@ -311,12 +311,6 @@ a {
   }
 }
 
-.ai-item {
-  background: transparent!important;
-  color: var(--gray12)!important;
-  cursor: default;
-}
-
 .ai-chat {
   width: 100%;
   display: flex;
@@ -327,6 +321,12 @@ a {
   & .ai-message:not(:last-child) {
     margin-top: 16px;
   }
+}
+
+.ai-item {
+  background: transparent!important;
+  color: var(--gray12)!important;
+  cursor: default;
 }
 
 ::-webkit-scrollbar {
