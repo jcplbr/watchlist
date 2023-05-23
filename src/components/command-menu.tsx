@@ -93,7 +93,7 @@ export function CommandMenu() {
       }, 10);
     },
     onError: (_, message) => {
-      toast.error("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again later.");
       removeMessage(message.id);
       inputRef.current?.focus();
     },
@@ -326,7 +326,7 @@ function Movies() {
     method: "GET",
     headers: {
       accept: "application/json",
-      Authorization: `Bearer ${process.env.TMDB_API_KEY}`,
+      Authorization: `Bearer ${process.env.TMDB_API_TOKEN}`,
     },
   };
 
@@ -353,19 +353,33 @@ function Movies() {
       setLoading(false);
       return modifiedData;
     },
+    onError: () => {
+      toast.error("Something went wrong. Please try again later.");
+    },
   });
 
   return (
     <Command.Group heading="Popular">
       {loading && (
         <Command.Loading>
-          {Array(8).map((_, i) => {
-            return (
-              <Item key={i}>
-                <Skeleton />
-              </Item>
-            );
-          })}
+          <Item className="skeleton">
+            <Skeleton />
+          </Item>
+          <Item className="skeleton">
+            <Skeleton />
+          </Item>
+          <Item className="skeleton">
+            <Skeleton />
+          </Item>
+          <Item className="skeleton">
+            <Skeleton />
+          </Item>
+          <Item className="skeleton">
+            <Skeleton />
+          </Item>
+          <Item className="skeleton">
+            <Skeleton />
+          </Item>
         </Command.Loading>
       )}
       {movies.map((movie: MovieData) => {
