@@ -1,10 +1,12 @@
 "use client";
 
-import React, { HTMLAttributes, useContext } from "react";
+import React, { useContext } from "react";
 import { Command } from "cmdk";
 import {
   LaptopIcon,
+  LoaderIcon,
   MoonIcon,
+  MovieIcon,
   SearchIcon,
   SunIcon,
   ToWatchIcon,
@@ -12,12 +14,14 @@ import {
   WatchedIcon,
   WatchingIcon,
 } from "./icons";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { nanoid } from "nanoid";
 import { Message } from "@/lib/validators/message";
 import ChatMessages from "./chat-messages";
 import { MessagesContext } from "@/context/messages";
 import { toast } from "react-hot-toast";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 export function CommandMenu() {
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -35,9 +39,10 @@ export function CommandMenu() {
   } = useContext(MessagesContext);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
+  // AI chat
   const { mutate: sendMessage, isLoading } = useMutation({
     mutationKey: ["sendMessage"],
-    // include message to later use it in onMutate
+    // Include message to later use it in onMutate
     mutationFn: async (_message: Message) => {
       const response = await fetch("/api/message", {
         method: "POST",
@@ -55,7 +60,7 @@ export function CommandMenu() {
     onSuccess: async (stream) => {
       if (!stream) throw new Error("No stream");
 
-      // construct new message to add
+      // Construct new message to add
       const id = nanoid();
       const responseMessage: Message = {
         id,
@@ -63,7 +68,7 @@ export function CommandMenu() {
         text: "",
       };
 
-      // add new message to state
+      // Add new message to state
       addMessage(responseMessage);
 
       setIsMessageUpdating(true);
@@ -79,7 +84,7 @@ export function CommandMenu() {
         updateMessage(id, (prev) => prev + chunkValue);
       }
 
-      // clean up
+      // Clean up
       setIsMessageUpdating(false);
       setInputValue("");
 
@@ -147,43 +152,52 @@ export function CommandMenu() {
           </div>
         ))}
       </div>
-      <Command.Input
-        ref={inputRef}
-        autoFocus
-        disabled={isLoading}
-        placeholder={
-          activePage === "movies"
-            ? "Search Movies..."
-            : activePage === "ask AI"
-            ? "Ask AI for recommendations..."
-            : activePage === "to watch"
-            ? "Search To Watch..."
-            : activePage === "watching"
-            ? "Search Watching..."
-            : activePage === "watched"
-            ? "Search Watched..."
-            : activePage === "theme"
-            ? "Change Theme..."
-            : "What do you want to do?"
-        }
-        onValueChange={(value) => {
-          setInputValue(value);
-        }}
-        value={inputValue}
-        onKeyDown={(e: React.KeyboardEvent) => {
-          if (activePage === "ask AI" && e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-
-            const message = {
-              id: nanoid(),
-              isUserMessage: true,
-              text: inputValue,
-            };
-
-            sendMessage(message);
+      <div style={{ position: "relative" }}>
+        <Command.Input
+          ref={inputRef}
+          autoFocus
+          disabled={isLoading}
+          placeholder={
+            activePage === "movies"
+              ? "Search Movies..."
+              : activePage === "ask AI"
+              ? "Ask AI for recommendations..."
+              : activePage === "to watch"
+              ? "Search To Watch..."
+              : activePage === "watching"
+              ? "Search Watching..."
+              : activePage === "watched"
+              ? "Search Watched..."
+              : activePage === "theme"
+              ? "Change Theme..."
+              : "What do you want to do?"
           }
-        }}
-      />
+          onValueChange={(value) => {
+            setInputValue(value);
+          }}
+          value={inputValue}
+          onKeyDown={(e: React.KeyboardEvent) => {
+            if (activePage === "ask AI" && e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+
+              const message = {
+                id: nanoid(),
+                isUserMessage: true,
+                text: inputValue,
+              };
+
+              sendMessage(message);
+            }
+          }}
+        />
+
+        {activePage === "ask AI" && isLoading && (
+          <kbd aria-hidden="true" className="ai-loader">
+            <LoaderIcon />
+          </kbd>
+        )}
+      </div>
+
       <Command.List>
         {activePage === "ask AI" ? (
           <Command.Empty>No messages yet</Command.Empty>
@@ -298,14 +312,70 @@ function Home({
 }
 
 function Movies() {
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const [movies, setMovies] = React.useState<[]>([]);
+
+  // TMDB fetch
+  interface MovieData {
+    id: number;
+    title: string;
+    overview: string;
+  }
+
+  const options = {
+    method: "GET",
+    headers: {
+      accept: "application/json",
+      Authorization: `Bearer ${process.env.TMDB_API_KEY}`,
+    },
+  };
+
+  const { data } = useQuery({
+    queryKey: ["movies"],
+    queryFn: async () => {
+      setLoading(true);
+
+      const res = await fetch(
+        "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&sort_by=popularity.desc",
+        options
+      );
+
+      return res.json();
+    },
+    onSuccess: (data) => {
+      const modifiedData = data.results.map((movie: MovieData) => ({
+        id: movie.id,
+        title: movie.title,
+        overview: movie.overview,
+      }));
+
+      setMovies(modifiedData);
+      setLoading(false);
+      return modifiedData;
+    },
+  });
+
   return (
-    <Command.Group>
-      <Item>Project 1</Item>
-      <Item>Project 2</Item>
-      <Item>Project 3</Item>
-      <Item>Project 4</Item>
-      <Item>Project 5</Item>
-      <Item>Project 6</Item>
+    <Command.Group heading="Popular">
+      {loading && (
+        <Command.Loading>
+          {Array(8).map((_, i) => {
+            return (
+              <Item key={i}>
+                <Skeleton />
+              </Item>
+            );
+          })}
+        </Command.Loading>
+      )}
+      {movies.map((movie: MovieData) => {
+        return (
+          <Item key={movie.id}>
+            <MovieIcon />
+            {movie.title}
+          </Item>
+        );
+      })}
     </Command.Group>
   );
 }
