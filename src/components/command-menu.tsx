@@ -25,6 +25,7 @@ import "react-loading-skeleton/dist/skeleton.css";
 
 export function CommandMenu() {
   const ref = React.useRef<HTMLDivElement | null>(null);
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
   const [inputValue, setInputValue] = React.useState<string>("");
   const [pages, setPages] = React.useState<string[]>(["home"]);
   const activePage = pages[pages.length - 1];
@@ -37,7 +38,6 @@ export function CommandMenu() {
     updateMessage,
     setIsMessageUpdating,
   } = useContext(MessagesContext);
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
 
   // AI chat
   const { mutate: sendMessage, isLoading } = useMutation({
@@ -203,7 +203,7 @@ export function CommandMenu() {
           <Command.Empty>No messages yet</Command.Empty>
         ) : (
           <Command.Empty>
-            No results for &quot;<span>{inputValue}</span>&quot;
+            No results for &quot;<span>{inputValue}</span>&quot;.
           </Command.Empty>
         )}
         {activePage === "home" && (
@@ -313,30 +313,33 @@ function Home({
 
 function Movies() {
   const [loading, setLoading] = React.useState<boolean>(false);
-  const [movies, setMovies] = React.useState<[]>([]);
+  const [popularMovies, setPopularMovies] = React.useState<MovieData[]>([]);
 
-  // TMDB fetch
+  // TMDB fetch options
   interface MovieData {
     id: number;
     title: string;
     overview: string;
+    release_date: string;
+    poster_path: string;
   }
 
   const options = {
     method: "GET",
     headers: {
       accept: "application/json",
-      Authorization: `Bearer ${process.env.TMDB_API_TOKEN}`,
+      Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyYzNmNDk4NmEwN2Q2YWI1OTdiMmVhMzM1NzM5ZmEzMCIsInN1YiI6IjY0NmI3NzlhZDE4NTcyMDEwMTk5NWQ4ZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.uQ9jodFZlWMJSLS0zFSfPAAl1jxC2XgAK_H0HFVQfls`,
     },
   };
 
-  const { data } = useQuery({
-    queryKey: ["movies"],
+  // TMDB popular movies
+  const popularQuery = useQuery({
+    queryKey: ["movies", { type: "popular" }],
     queryFn: async () => {
       setLoading(true);
 
       const res = await fetch(
-        "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&sort_by=popularity.desc",
+        "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1",
         options
       );
 
@@ -347,9 +350,11 @@ function Movies() {
         id: movie.id,
         title: movie.title,
         overview: movie.overview,
+        release_date: movie.release_date,
+        poster: movie.poster_path,
       }));
 
-      setMovies(modifiedData);
+      setPopularMovies(modifiedData);
       setLoading(false);
       return modifiedData;
     },
@@ -359,38 +364,27 @@ function Movies() {
   });
 
   return (
-    <Command.Group heading="Popular">
-      {loading && (
-        <Command.Loading>
-          <Item className="skeleton">
-            <Skeleton />
-          </Item>
-          <Item className="skeleton">
-            <Skeleton />
-          </Item>
-          <Item className="skeleton">
-            <Skeleton />
-          </Item>
-          <Item className="skeleton">
-            <Skeleton />
-          </Item>
-          <Item className="skeleton">
-            <Skeleton />
-          </Item>
-          <Item className="skeleton">
-            <Skeleton />
-          </Item>
-        </Command.Loading>
-      )}
-      {movies.map((movie: MovieData) => {
-        return (
-          <Item key={movie.id}>
-            <MovieIcon />
-            {movie.title}
-          </Item>
-        );
-      })}
-    </Command.Group>
+    <>
+      <Command.Group heading={loading ? "Loading..." : "Popular"}>
+        {loading && (
+          <Command.Loading>
+            {Array(6).fill(
+              <Item className="skeleton">
+                <Skeleton />
+              </Item>
+            )}
+          </Command.Loading>
+        )}
+        {popularMovies.map((movie: MovieData) => {
+          return (
+            <Item key={movie.id}>
+              <MovieIcon />
+              {movie.title}
+            </Item>
+          );
+        })}
+      </Command.Group>
+    </>
   );
 }
 
