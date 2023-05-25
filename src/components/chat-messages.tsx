@@ -31,6 +31,8 @@ const ChatMessages: FC<ChatMessagesProps> = ({}) => {
             >
               <p
                 style={{
+                  cursor: "text",
+                  userSelect: "text",
                   padding: "12px 16px",
                   borderRadius: "8px",
                   background: message.isUserMessage

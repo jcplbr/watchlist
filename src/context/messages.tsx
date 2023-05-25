@@ -1,6 +1,7 @@
 import { Message } from "@/lib/validators/message";
 import { nanoid } from "nanoid";
 import { ReactNode, createContext, useState } from "react";
+import { toast } from "sonner";
 
 export const MessagesContext = createContext<{
   messages: Message[];
@@ -9,6 +10,7 @@ export const MessagesContext = createContext<{
   removeMessage: (id: string) => void;
   updateMessage: (id: string, updateFn: (prevText: string) => string) => void;
   setIsMessageUpdating: (isUpdating: boolean) => void;
+  clearChat: () => void;
 }>({
   messages: [],
   isMessageUpdating: false,
@@ -16,6 +18,7 @@ export const MessagesContext = createContext<{
   removeMessage: () => {},
   updateMessage: () => {},
   setIsMessageUpdating: () => {},
+  clearChat: () => {},
 });
 
 export function MessagesProvider({ children }: { children: ReactNode }) {
@@ -51,6 +54,18 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const clearChat = () => {
+    setMessages([
+      {
+        id: nanoid(),
+        isUserMessage: false,
+        text: "Hello, how can I help you?",
+      },
+    ]);
+
+    toast("The chat has been cleared.");
+  };
+
   return (
     <MessagesContext.Provider
       value={{
@@ -60,6 +75,7 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
         removeMessage,
         updateMessage,
         setIsMessageUpdating,
+        clearChat,
       }}
     >
       {children}

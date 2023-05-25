@@ -19,9 +19,9 @@ import { nanoid } from "nanoid";
 import { Message } from "@/lib/validators/message";
 import ChatMessages from "./chat-messages";
 import { MessagesContext } from "@/context/messages";
-import { toast } from "react-hot-toast";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { toast } from "sonner";
 
 export function CommandMenu() {
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -37,12 +37,28 @@ export function CommandMenu() {
     removeMessage,
     updateMessage,
     setIsMessageUpdating,
+    clearChat,
   } = useContext(MessagesContext);
+  const [windowWidth, setWindowWidth] = React.useState<number>(
+    window.innerWidth
+  );
+
+  React.useEffect(() => {
+    function handleResize() {
+      setWindowWidth(window.innerWidth);
+    }
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   // AI chat
   const { mutate: sendMessage, isLoading } = useMutation({
     mutationKey: ["sendMessage"],
-    // Include message to later use it in onMutate
+    // Include message to later use in onMutate
     mutationFn: async (_message: Message) => {
       const response = await fetch("/api/message", {
         method: "POST",
@@ -55,11 +71,15 @@ export function CommandMenu() {
       return response.body;
     },
     onMutate(message) {
+      if (inputValue === "clear") {
+        clearChat();
+        return { abort: true };
+      }
+
       addMessage(message);
     },
     onSuccess: async (stream) => {
       if (!stream) throw new Error("No stream");
-
       // Construct new message to add
       const id = nanoid();
       const responseMessage: Message = {
@@ -67,35 +87,33 @@ export function CommandMenu() {
         isUserMessage: false,
         text: "",
       };
-
       // Add new message to state
       addMessage(responseMessage);
-
       setIsMessageUpdating(true);
-
       const reader = stream.getReader();
       const decoder = new TextDecoder();
       let done = false;
-
       while (!done) {
         const { value, done: doneReading } = await reader.read();
         done = doneReading;
         const chunkValue = decoder.decode(value);
         updateMessage(id, (prev) => prev + chunkValue);
       }
-
       // Clean up
       setIsMessageUpdating(false);
       setInputValue("");
-
       setTimeout(() => {
-        inputRef.current?.focus();
+        if (windowWidth > 1024) {
+          inputRef.current?.focus();
+        }
       }, 10);
     },
     onError: (_, message) => {
       toast.error("Something went wrong. Please try again later.");
       removeMessage(message.id);
-      inputRef.current?.focus();
+      if (windowWidth > 1024) {
+        inputRef.current?.focus();
+      }
     },
   });
 
@@ -155,19 +173,19 @@ export function CommandMenu() {
       <div style={{ position: "relative" }}>
         <Command.Input
           ref={inputRef}
-          autoFocus
+          autoFocus={windowWidth > 1024}
           disabled={isLoading}
           placeholder={
             activePage === "movies"
-              ? "Search Movies..."
+              ? "Browse Popular Movies..."
               : activePage === "ask AI"
               ? "Ask AI for recommendations..."
               : activePage === "to watch"
-              ? "Search To Watch..."
+              ? "Manage To Watch List..."
               : activePage === "watching"
-              ? "Search Watching..."
+              ? "Manage Watching List..."
               : activePage === "watched"
-              ? "Search Watched..."
+              ? "Manage Watched List..."
               : activePage === "theme"
               ? "Change Theme..."
               : "What do you want to do?"
@@ -258,7 +276,7 @@ function Home({
           }}
         >
           <SearchIcon />
-          Search Movies...
+          Browse Popular Movies...
         </Item>
         <Item
           onSelect={() => {
@@ -277,7 +295,7 @@ function Home({
           }}
         >
           <ToWatchIcon />
-          Search To Watch...
+          Manage To Watch List...
         </Item>
         <Item
           onSelect={() => {
@@ -285,7 +303,7 @@ function Home({
           }}
         >
           <WatchingIcon />
-          Search Watching...
+          Manage Watching List...
         </Item>
         <Item
           onSelect={() => {
@@ -293,7 +311,7 @@ function Home({
           }}
         >
           <WatchedIcon />
-          Search Watched...
+          Manage Watched List...
         </Item>
       </Command.Group>
       <Command.Group heading="General">
@@ -333,13 +351,14 @@ function Movies() {
   };
 
   // TMDB popular movies
-  const popularQuery = useQuery({
-    queryKey: ["movies", { type: "popular" }],
+  // Not so DRY...
+  const pageOneQuery = useQuery({
+    queryKey: ["movies", { type: "popular", page: 1 }],
     queryFn: async () => {
       setLoading(true);
 
       const res = await fetch(
-        "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1",
+        `https://api.themoviedb.org/3/movie/popular?language=en-US&page=1`,
         options
       );
 
@@ -354,7 +373,127 @@ function Movies() {
         poster: movie.poster_path,
       }));
 
-      setPopularMovies(modifiedData);
+      setPopularMovies((prev) => [...prev, ...modifiedData]);
+      setLoading(false);
+      return modifiedData;
+    },
+    onError: () => {
+      toast.error("Something went wrong. Please try again later.");
+    },
+  });
+
+  const pageTwoQuery = useQuery({
+    queryKey: ["movies", { type: "popular", page: 2 }],
+    queryFn: async () => {
+      setLoading(true);
+
+      const res = await fetch(
+        `https://api.themoviedb.org/3/movie/popular?language=en-US&page=2`,
+        options
+      );
+
+      return res.json();
+    },
+    onSuccess: (data) => {
+      const modifiedData = data.results.map((movie: MovieData) => ({
+        id: movie.id,
+        title: movie.title,
+        overview: movie.overview,
+        release_date: movie.release_date,
+        poster: movie.poster_path,
+      }));
+
+      setPopularMovies((prev) => [...prev, ...modifiedData]);
+      setLoading(false);
+      return modifiedData;
+    },
+    onError: () => {
+      toast.error("Something went wrong. Please try again later.");
+    },
+  });
+
+  const pageThreeQuery = useQuery({
+    queryKey: ["movies", { type: "popular", page: 3 }],
+    queryFn: async () => {
+      setLoading(true);
+
+      const res = await fetch(
+        `https://api.themoviedb.org/3/movie/popular?language=en-US&page=3`,
+        options
+      );
+
+      return res.json();
+    },
+    onSuccess: (data) => {
+      const modifiedData = data.results.map((movie: MovieData) => ({
+        id: movie.id,
+        title: movie.title,
+        overview: movie.overview,
+        release_date: movie.release_date,
+        poster: movie.poster_path,
+      }));
+
+      setPopularMovies((prev) => [...prev, ...modifiedData]);
+      setLoading(false);
+      return modifiedData;
+    },
+    onError: () => {
+      toast.error("Something went wrong. Please try again later.");
+    },
+  });
+
+  const pageFourQuery = useQuery({
+    queryKey: ["movies", { type: "popular", page: 4 }],
+    queryFn: async () => {
+      setLoading(true);
+
+      const res = await fetch(
+        `https://api.themoviedb.org/3/movie/popular?language=en-US&page=4`,
+        options
+      );
+
+      return res.json();
+    },
+    onSuccess: (data) => {
+      const modifiedData = data.results.map((movie: MovieData) => ({
+        id: movie.id,
+        title: movie.title,
+        overview: movie.overview,
+        release_date: movie.release_date,
+        poster: movie.poster_path,
+      }));
+
+      setPopularMovies((prev) => [...prev, ...modifiedData]);
+      setLoading(false);
+      return modifiedData;
+    },
+    onError: () => {
+      toast.error("Something went wrong. Please try again later.");
+    },
+  });
+
+  const pageFiveQuery = useQuery({
+    queryKey: ["movies", { type: "popular", page: 5 }],
+    queryFn: async () => {
+      setLoading(true);
+
+      const res = await fetch(
+        `https://api.themoviedb.org/3/movie/popular?language=en-US&page=5`,
+        options
+      );
+
+      return res.json();
+    },
+    onSuccess: (data) => {
+      const modifiedData = data.results.map((movie: MovieData) => ({
+        id: movie.id,
+        title: movie.title,
+        overview: movie.overview,
+        release_date: movie.release_date,
+        poster: movie.poster_path,
+      }));
+
+      setPopularMovies((prev) => [...prev, ...modifiedData]);
       setLoading(false);
       return modifiedData;
     },
@@ -365,7 +504,7 @@ function Movies() {
 
   return (
     <>
-      <Command.Group heading={loading ? "Loading..." : "Popular"}>
+      <Command.Group>
         {loading && (
           <Command.Loading>
             {Array(6).fill(

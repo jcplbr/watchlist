@@ -218,6 +218,9 @@ a {
   will-change: background, color;
   transition: all 150ms ease;
   transition-property: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   &[data-selected='true'] {
     background: var(--grayA3);
@@ -276,13 +279,6 @@ a {
   }
 }
 
-[cmdk-separator] {
-  height: 1px;
-  width: 100%;
-  background: var(--gray5);
-  margin: 4px 0;
-}
-
 *:not([hidden]) + [cmdk-group] {
   margin-top: 8px;
 }
@@ -306,8 +302,9 @@ a {
   white-space: pre-wrap;
   color: var(--gray9);
 
-  & span {
+  span {
     color: var(--gray12);
+    font-weight: 500;
   }
 }
 
