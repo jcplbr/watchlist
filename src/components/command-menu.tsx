@@ -251,6 +251,8 @@ export function CommandMenu() {
   );
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////
+
 function Home({
   searchMovies,
   askAI,
@@ -346,12 +348,11 @@ function Movies() {
     method: "GET",
     headers: {
       accept: "application/json",
-      Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyYzNmNDk4NmEwN2Q2YWI1OTdiMmVhMzM1NzM5ZmEzMCIsInN1YiI6IjY0NmI3NzlhZDE4NTcyMDEwMTk5NWQ4ZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.uQ9jodFZlWMJSLS0zFSfPAAl1jxC2XgAK_H0HFVQfls`,
+      Authorization: `Bearer ${process.env.TMDB_API_TOKEN}`,
     },
   };
 
   // TMDB popular movies
-  // Not so DRY...
   const pageOneQuery = useQuery({
     queryKey: ["movies", { type: "popular", page: 1 }],
     queryFn: async () => {
@@ -380,6 +381,7 @@ function Movies() {
     onError: () => {
       toast.error("Something went wrong. Please try again later.");
     },
+    refetchOnWindowFocus: false,
   });
 
   const pageTwoQuery = useQuery({
@@ -410,6 +412,7 @@ function Movies() {
     onError: () => {
       toast.error("Something went wrong. Please try again later.");
     },
+    refetchOnWindowFocus: false,
   });
 
   const pageThreeQuery = useQuery({
@@ -440,6 +443,7 @@ function Movies() {
     onError: () => {
       toast.error("Something went wrong. Please try again later.");
     },
+    refetchOnWindowFocus: false,
   });
 
   const pageFourQuery = useQuery({
@@ -470,6 +474,7 @@ function Movies() {
     onError: () => {
       toast.error("Something went wrong. Please try again later.");
     },
+    refetchOnWindowFocus: false,
   });
 
   const pageFiveQuery = useQuery({
@@ -500,6 +505,7 @@ function Movies() {
     onError: () => {
       toast.error("Something went wrong. Please try again later.");
     },
+    refetchOnWindowFocus: false,
   });
 
   return (
@@ -604,6 +610,8 @@ function Theme({
     </Command.Group>
   );
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////
 
 function Item({
   children,
