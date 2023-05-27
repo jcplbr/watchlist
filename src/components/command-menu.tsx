@@ -22,6 +22,7 @@ import { MessagesContext } from "@/context/messages";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { toast } from "sonner";
+import { useTheme } from "next-themes";
 
 export function CommandMenu() {
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -39,13 +40,16 @@ export function CommandMenu() {
     setIsMessageUpdating,
     clearChat,
   } = useContext(MessagesContext);
+
   const [windowWidth, setWindowWidth] = React.useState<number>(
     window.innerWidth
   );
 
   React.useEffect(() => {
     function handleResize() {
-      setWindowWidth(window.innerWidth);
+      if (typeof window !== "undefined") {
+        setWindowWidth(window.innerWidth);
+      }
     }
 
     window.addEventListener("resize", handleResize);
@@ -135,6 +139,18 @@ export function CommandMenu() {
       }, 100);
       setInputValue("");
     }
+  }
+
+  const [mounted, setMounted] = React.useState<boolean>(false);
+  const { setTheme } = useTheme();
+
+  // useEffect only runs on the client, so now we can safely show the UI
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
   }
 
   return (
@@ -241,9 +257,18 @@ export function CommandMenu() {
         {activePage === "watched" && <Watched />}
         {activePage === "theme" && (
           <Theme
-            lightTheme={() => popPage()}
-            darkTheme={() => popPage()}
-            systemTheme={() => popPage()}
+            lightTheme={() => {
+              setTheme("light");
+              popPage();
+            }}
+            darkTheme={() => {
+              setTheme("dark");
+              popPage();
+            }}
+            systemTheme={() => {
+              setTheme("system");
+              popPage();
+            }}
           />
         )}
       </Command.List>
@@ -272,7 +297,7 @@ function Home({
     <>
       <Command.Group heading="Explore">
         <Item
-          shortcut="⇧ M"
+          shortcut="⇧ P"
           onSelect={() => {
             searchMovies();
           }}
@@ -291,7 +316,7 @@ function Home({
       </Command.Group>
       <Command.Group heading="Watchlist">
         <Item
-          shortcut="⇧ W"
+          shortcut="⇧ L"
           onSelect={() => {
             toWatch();
           }}
