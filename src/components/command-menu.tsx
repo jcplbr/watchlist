@@ -7,7 +7,6 @@ import {
   LoaderIcon,
   MoonIcon,
   MovieIcon,
-  PlusIcon,
   SearchIcon,
   SunIcon,
   ToWatchIcon,
@@ -24,14 +23,6 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
-
-interface MovieData {
-  id: number;
-  title: string;
-  overview: string;
-  release_date: string;
-  poster_path: string;
-}
 
 export function CommandMenu() {
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -150,7 +141,6 @@ export function CommandMenu() {
     }
   }
 
-  // Theme toggle
   const [mounted, setMounted] = React.useState<boolean>(false);
   const { setTheme } = useTheme();
 
@@ -262,15 +252,9 @@ export function CommandMenu() {
         )}
         {activePage === "movies" && <Movies />}
         {activePage === "ask AI" && <AskAI />}
-        {activePage === "to watch" && (
-          <ToWatch searchMovies={() => setPages([...pages, "movies"])} />
-        )}
-        {activePage === "watching" && (
-          <Watching searchMovies={() => setPages([...pages, "movies"])} />
-        )}
-        {activePage === "watched" && (
-          <Watched searchMovies={() => setPages([...pages, "movies"])} />
-        )}
+        {activePage === "to watch" && <ToWatch />}
+        {activePage === "watching" && <Watching />}
+        {activePage === "watched" && <Watched />}
         {activePage === "theme" && (
           <Theme
             lightTheme={() => {
@@ -377,12 +361,19 @@ function Movies() {
   const [popularMovies, setPopularMovies] = React.useState<MovieData[]>([]);
 
   // TMDB fetch options
+  interface MovieData {
+    id: number;
+    title: string;
+    overview: string;
+    release_date: string;
+    poster_path: string;
+  }
 
   const options = {
     method: "GET",
     headers: {
       accept: "application/json",
-      Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjMjY0ODUwYmUzMTg4ZmI1NTM3MTY5ODcxY2ViN2YyOCIsInN1YiI6IjY0NmI3NzlhZDE4NTcyMDEwMTk5NWQ4ZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.hXUengMjJ1nelc4NNUKlnlRSiIdgNmH6NXzS-a2hOck`,
+      Authorization: `Bearer ${process.env.TMDB_API_TOKEN}`,
     },
   };
 
@@ -577,79 +568,31 @@ function AskAI() {
   );
 }
 
-function ToWatch({ searchMovies }: { searchMovies: Function }) {
+function ToWatch() {
   return (
     <Command.Group>
-      <Item
-        onSelect={() => {
-          searchMovies();
-        }}
-      >
-        <PlusIcon />
-        Add New Movie...
-      </Item>
-      <Item>
-        <MovieIcon />
-        Movie 1
-      </Item>
-      <Item>
-        <MovieIcon />
-        Movie 2
-      </Item>
+      <Item>Project 1</Item>
+      <Item>Project 2</Item>
     </Command.Group>
   );
 }
 
-function Watching({ searchMovies }: { searchMovies: Function }) {
+function Watching() {
   return (
     <Command.Group>
-      <Item
-        onSelect={() => {
-          searchMovies();
-        }}
-      >
-        <PlusIcon />
-        Add New Movie...
-      </Item>
-      <Item>
-        <MovieIcon />
-        Movie 1
-      </Item>
+      <Item>Project 1</Item>
     </Command.Group>
   );
 }
 
-function Watched({ searchMovies }: { searchMovies: Function }) {
+function Watched() {
   return (
     <Command.Group>
-      <Item
-        onSelect={() => {
-          searchMovies();
-        }}
-      >
-        <PlusIcon />
-        Add New Movie...
-      </Item>
-      <Item>
-        <MovieIcon />
-        Movie 1
-      </Item>
-      <Item>
-        <MovieIcon />
-        Movie 2
-      </Item>
-      <Item>
-        <MovieIcon />
-        Movie 3
-      </Item>
-      <Item>
-        <MovieIcon />
-        Movie 4
-      </Item>
-      <Item>
-        <MovieIcon />
-        Movie 5
-      </Item>
+      <Item>Project 1</Item>
+      <Item>Project 2</Item>
+      <Item>Project 3</Item>
+      <Item>Project 4</Item>
+      <Item>Project 5</Item>
     </Command.Group>
   );
 }
