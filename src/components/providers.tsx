@@ -2,7 +2,7 @@
 
 import { MessagesProvider } from "@/context/messages";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider, useTheme } from "next-themes";
 import { FC, ReactNode } from "react";
 import { Toaster } from "sonner";
 
@@ -15,7 +15,7 @@ const Providers: FC<ProvidersProps> = ({ children }) => {
   return (
     <ThemeProvider>
       <div>
-        <Toaster position="bottom-right" richColors />
+        <Toaster richColors />
         <QueryClientProvider client={queryClient}>
           <MessagesProvider>{children}</MessagesProvider>
         </QueryClientProvider>
