@@ -764,6 +764,7 @@ function MoviePage({
   posterBasePath: string;
 }) {
   const formattedDate = convertDateFormat(selectedMovie.release_date);
+  const movieUrl = `https://www.themoviedb.org/movie/${selectedMovie.id}`;
 
   return (
     <>
@@ -784,11 +785,8 @@ function MoviePage({
       </div>
 
       <Command.Group>
-        <Link
-          href={`https://www.themoviedb.org/movie/${selectedMovie.id}`}
-          target="_blank"
-        >
-          <Item>
+        <Link href={movieUrl} target="_blank">
+          <Item onSelect={() => window.open(movieUrl, "_blank")}>
             <ReadMoreIcon /> Read more
           </Item>
         </Link>
