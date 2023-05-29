@@ -399,6 +399,42 @@ header {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+.movie-wrapper {
+  padding: 0 8px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+
+  .movie-info {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    
+    .movie-date {
+      font-size: 12px;
+      color: var(--gray11);
+    }
+    
+    .movie-overview {
+      font-size: 14px;
+      color: var(--gray12);
+      line-height: 1.5;
+    }
+  }
+
+  .movie-poster {
+    aspect-ratio: 2/3;
+    max-width: 125px;
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+  }
+}
+
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -414,5 +450,21 @@ header {
   }
   50% {
     opacity: .5;
+  }
+}
+
+@media (max-width: 490px) {
+  .movie-wrapper {
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+
+    .movie-poster {
+      margin: auto
+    }
+
+    .movie-info {
+      margin-top: 16px;
+    }
   }
 }

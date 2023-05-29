@@ -8,6 +8,7 @@ import {
   MoonIcon,
   MovieIcon,
   PlusIcon,
+  ReadMoreIcon,
   SearchIcon,
   SunIcon,
   ToWatchIcon,
@@ -24,6 +25,8 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
+import Image from "next/image";
+import Link from "next/link";
 
 interface MovieData {
   id: number;
@@ -32,6 +35,15 @@ interface MovieData {
   release_date: string;
   poster_path: string;
 }
+
+// TMDB fetch options
+const options = {
+  method: "GET",
+  headers: {
+    accept: "application/json",
+    Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_TOKEN}`,
+  },
+};
 
 export function CommandMenu() {
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -49,6 +61,194 @@ export function CommandMenu() {
     setIsMessageUpdating,
     clearChat,
   } = useContext(MessagesContext);
+
+  const [popularMovies, setPopularMovies] = React.useState<MovieData[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const [selectedMovie, setSelectedMovie] = React.useState<MovieData>();
+
+  // TMDB popular movies
+  const pageOneQuery = useQuery({
+    queryKey: ["movies", { type: "popular", page: 1 }],
+    queryFn: async () => {
+      setLoading(true);
+
+      const res = await fetch(
+        `https://api.themoviedb.org/3/movie/popular?language=en-US&page=1`,
+        options
+      );
+
+      return res.json();
+    },
+    onSuccess: (data) => {
+      const modifiedData = data.results.map((movie: MovieData) => ({
+        id: movie.id,
+        title: movie.title,
+        overview: movie.overview,
+        release_date: movie.release_date,
+        poster_path: movie.poster_path,
+      }));
+
+      setPopularMovies((prev) => [...prev, ...modifiedData]);
+      setLoading(false);
+      return modifiedData;
+    },
+    onError: () => {
+      toast.error("Something went wrong. Please try again later.");
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const pageTwoQuery = useQuery({
+    queryKey: ["movies", { type: "popular", page: 2 }],
+    queryFn: async () => {
+      setLoading(true);
+
+      const res = await fetch(
+        `https://api.themoviedb.org/3/movie/popular?language=en-US&page=2`,
+        options
+      );
+
+      return res.json();
+    },
+    onSuccess: (data) => {
+      const modifiedData = data.results.map((movie: MovieData) => ({
+        id: movie.id,
+        title: movie.title,
+        overview: movie.overview,
+        release_date: movie.release_date,
+        poster_path: movie.poster_path,
+      }));
+
+      setPopularMovies((prev) => [...prev, ...modifiedData]);
+      setLoading(false);
+      return modifiedData;
+    },
+    onError: () => {
+      toast.error("Something went wrong. Please try again later.");
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const pageThreeQuery = useQuery({
+    queryKey: ["movies", { type: "popular", page: 3 }],
+    queryFn: async () => {
+      setLoading(true);
+
+      const res = await fetch(
+        `https://api.themoviedb.org/3/movie/popular?language=en-US&page=3`,
+        options
+      );
+
+      return res.json();
+    },
+    onSuccess: (data) => {
+      const modifiedData = data.results.map((movie: MovieData) => ({
+        id: movie.id,
+        title: movie.title,
+        overview: movie.overview,
+        release_date: movie.release_date,
+        poster_path: movie.poster_path,
+      }));
+
+      setPopularMovies((prev) => [...prev, ...modifiedData]);
+      setLoading(false);
+      return modifiedData;
+    },
+    onError: () => {
+      toast.error("Something went wrong. Please try again later.");
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const pageFourQuery = useQuery({
+    queryKey: ["movies", { type: "popular", page: 4 }],
+    queryFn: async () => {
+      setLoading(true);
+
+      const res = await fetch(
+        `https://api.themoviedb.org/3/movie/popular?language=en-US&page=4`,
+        options
+      );
+
+      return res.json();
+    },
+    onSuccess: (data) => {
+      const modifiedData = data.results.map((movie: MovieData) => ({
+        id: movie.id,
+        title: movie.title,
+        overview: movie.overview,
+        release_date: movie.release_date,
+        poster_path: movie.poster_path,
+      }));
+
+      setPopularMovies((prev) => [...prev, ...modifiedData]);
+      setLoading(false);
+      return modifiedData;
+    },
+    onError: () => {
+      toast.error("Something went wrong. Please try again later.");
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const pageFiveQuery = useQuery({
+    queryKey: ["movies", { type: "popular", page: 5 }],
+    queryFn: async () => {
+      setLoading(true);
+
+      const res = await fetch(
+        `https://api.themoviedb.org/3/movie/popular?language=en-US&page=5`,
+        options
+      );
+
+      return res.json();
+    },
+    onSuccess: (data) => {
+      const modifiedData = data.results.map((movie: MovieData) => ({
+        id: movie.id,
+        title: movie.title,
+        overview: movie.overview,
+        release_date: movie.release_date,
+        poster_path: movie.poster_path,
+      }));
+
+      setPopularMovies((prev) => [...prev, ...modifiedData]);
+      setLoading(false);
+      return modifiedData;
+    },
+    onError: () => {
+      toast.error("Something went wrong. Please try again later.");
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const [posterBasePath, setPosterBasePath] = React.useState<string>("");
+
+  // TMDB configuration
+  const { data } = useQuery({
+    queryKey: [],
+    queryFn: async () => {
+      const res = await fetch(
+        "https://api.themoviedb.org/3/configuration",
+        options
+      );
+
+      return res.json();
+    },
+    onSuccess: (data) => {
+      const base_url = data.images.secure_base_url;
+      const poster_size = data.images.poster_sizes[6];
+      const poster_base_path = `${base_url}${poster_size}`;
+
+      setPosterBasePath(poster_base_path);
+    },
+    onError: () => {
+      toast.error(
+        "Something went wrong retrieving the poster. Please try again later."
+      );
+    },
+    refetchOnWindowFocus: false,
+  });
 
   const [windowWidth, setWindowWidth] = React.useState<number>(
     window.innerWidth
@@ -201,6 +401,7 @@ export function CommandMenu() {
           ref={inputRef}
           autoFocus={windowWidth > 1024}
           disabled={isLoading}
+          readOnly={activePage === "current"}
           placeholder={
             activePage === "movies"
               ? "Browse Popular Movies..."
@@ -214,6 +415,8 @@ export function CommandMenu() {
               ? "Manage Watched List..."
               : activePage === "theme"
               ? "Change Theme..."
+              : activePage === "current"
+              ? selectedMovie?.title
               : "What do you want to do?"
           }
           onValueChange={(value) => {
@@ -260,7 +463,14 @@ export function CommandMenu() {
             theme={() => setPages([...pages, "theme"])}
           />
         )}
-        {activePage === "movies" && <Movies />}
+        {activePage === "movies" && (
+          <Movies
+            popularMovies={popularMovies}
+            loading={loading}
+            moviePage={() => setPages([...pages, "current"])}
+            selectMovie={(movie: MovieData) => setSelectedMovie(movie)}
+          />
+        )}
         {activePage === "ask AI" && <AskAI />}
         {activePage === "to watch" && (
           <ToWatch searchMovies={() => setPages([...pages, "movies"])} />
@@ -285,6 +495,12 @@ export function CommandMenu() {
               setTheme("system");
               popPage();
             }}
+          />
+        )}
+        {activePage === "current" && (
+          <MoviePage
+            selectedMovie={selectedMovie!}
+            posterBasePath={posterBasePath}
           />
         )}
       </Command.List>
@@ -372,176 +588,17 @@ function Home({
   );
 }
 
-function Movies() {
-  const [loading, setLoading] = React.useState<boolean>(false);
-  const [popularMovies, setPopularMovies] = React.useState<MovieData[]>([]);
-
-  // TMDB fetch options
-
-  const options = {
-    method: "GET",
-    headers: {
-      accept: "application/json",
-      Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjMjY0ODUwYmUzMTg4ZmI1NTM3MTY5ODcxY2ViN2YyOCIsInN1YiI6IjY0NmI3NzlhZDE4NTcyMDEwMTk5NWQ4ZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.hXUengMjJ1nelc4NNUKlnlRSiIdgNmH6NXzS-a2hOck`,
-    },
-  };
-
-  // TMDB popular movies
-  const pageOneQuery = useQuery({
-    queryKey: ["movies", { type: "popular", page: 1 }],
-    queryFn: async () => {
-      setLoading(true);
-
-      const res = await fetch(
-        `https://api.themoviedb.org/3/movie/popular?language=en-US&page=1`,
-        options
-      );
-
-      return res.json();
-    },
-    onSuccess: (data) => {
-      const modifiedData = data.results.map((movie: MovieData) => ({
-        id: movie.id,
-        title: movie.title,
-        overview: movie.overview,
-        release_date: movie.release_date,
-        poster: movie.poster_path,
-      }));
-
-      setPopularMovies((prev) => [...prev, ...modifiedData]);
-      setLoading(false);
-      return modifiedData;
-    },
-    onError: () => {
-      toast.error("Something went wrong. Please try again later.");
-    },
-    refetchOnWindowFocus: false,
-  });
-
-  const pageTwoQuery = useQuery({
-    queryKey: ["movies", { type: "popular", page: 2 }],
-    queryFn: async () => {
-      setLoading(true);
-
-      const res = await fetch(
-        `https://api.themoviedb.org/3/movie/popular?language=en-US&page=2`,
-        options
-      );
-
-      return res.json();
-    },
-    onSuccess: (data) => {
-      const modifiedData = data.results.map((movie: MovieData) => ({
-        id: movie.id,
-        title: movie.title,
-        overview: movie.overview,
-        release_date: movie.release_date,
-        poster: movie.poster_path,
-      }));
-
-      setPopularMovies((prev) => [...prev, ...modifiedData]);
-      setLoading(false);
-      return modifiedData;
-    },
-    onError: () => {
-      toast.error("Something went wrong. Please try again later.");
-    },
-    refetchOnWindowFocus: false,
-  });
-
-  const pageThreeQuery = useQuery({
-    queryKey: ["movies", { type: "popular", page: 3 }],
-    queryFn: async () => {
-      setLoading(true);
-
-      const res = await fetch(
-        `https://api.themoviedb.org/3/movie/popular?language=en-US&page=3`,
-        options
-      );
-
-      return res.json();
-    },
-    onSuccess: (data) => {
-      const modifiedData = data.results.map((movie: MovieData) => ({
-        id: movie.id,
-        title: movie.title,
-        overview: movie.overview,
-        release_date: movie.release_date,
-        poster: movie.poster_path,
-      }));
-
-      setPopularMovies((prev) => [...prev, ...modifiedData]);
-      setLoading(false);
-      return modifiedData;
-    },
-    onError: () => {
-      toast.error("Something went wrong. Please try again later.");
-    },
-    refetchOnWindowFocus: false,
-  });
-
-  const pageFourQuery = useQuery({
-    queryKey: ["movies", { type: "popular", page: 4 }],
-    queryFn: async () => {
-      setLoading(true);
-
-      const res = await fetch(
-        `https://api.themoviedb.org/3/movie/popular?language=en-US&page=4`,
-        options
-      );
-
-      return res.json();
-    },
-    onSuccess: (data) => {
-      const modifiedData = data.results.map((movie: MovieData) => ({
-        id: movie.id,
-        title: movie.title,
-        overview: movie.overview,
-        release_date: movie.release_date,
-        poster: movie.poster_path,
-      }));
-
-      setPopularMovies((prev) => [...prev, ...modifiedData]);
-      setLoading(false);
-      return modifiedData;
-    },
-    onError: () => {
-      toast.error("Something went wrong. Please try again later.");
-    },
-    refetchOnWindowFocus: false,
-  });
-
-  const pageFiveQuery = useQuery({
-    queryKey: ["movies", { type: "popular", page: 5 }],
-    queryFn: async () => {
-      setLoading(true);
-
-      const res = await fetch(
-        `https://api.themoviedb.org/3/movie/popular?language=en-US&page=5`,
-        options
-      );
-
-      return res.json();
-    },
-    onSuccess: (data) => {
-      const modifiedData = data.results.map((movie: MovieData) => ({
-        id: movie.id,
-        title: movie.title,
-        overview: movie.overview,
-        release_date: movie.release_date,
-        poster: movie.poster_path,
-      }));
-
-      setPopularMovies((prev) => [...prev, ...modifiedData]);
-      setLoading(false);
-      return modifiedData;
-    },
-    onError: () => {
-      toast.error("Something went wrong. Please try again later.");
-    },
-    refetchOnWindowFocus: false,
-  });
-
+function Movies({
+  popularMovies,
+  loading,
+  moviePage,
+  selectMovie,
+}: {
+  popularMovies: MovieData[];
+  loading: boolean;
+  moviePage: Function;
+  selectMovie: Function;
+}) {
   return (
     <>
       <Command.Group>
@@ -556,7 +613,13 @@ function Movies() {
         )}
         {popularMovies.map((movie: MovieData) => {
           return (
-            <Item key={movie.id}>
+            <Item
+              key={movie.id}
+              onSelect={() => {
+                moviePage();
+                selectMovie(movie);
+              }}
+            >
               <MovieIcon />
               {movie.title}
             </Item>
@@ -693,6 +756,50 @@ function Theme({
   );
 }
 
+function MoviePage({
+  selectedMovie,
+  posterBasePath,
+}: {
+  selectedMovie: MovieData;
+  posterBasePath: string;
+}) {
+  const formattedDate = convertDateFormat(selectedMovie.release_date);
+
+  return (
+    <>
+      <div className="movie-wrapper">
+        <Image
+          src={`${posterBasePath}${selectedMovie.poster_path}`}
+          width={720}
+          height={1080}
+          alt={`${selectedMovie.title} poster`}
+          referrerPolicy="no-referrer"
+          className="movie-poster"
+          draggable={false}
+        />
+        <div className="movie-info">
+          <div className="movie-date">{formattedDate}</div>
+          <div className="movie-overview">{selectedMovie.overview}</div>
+        </div>
+      </div>
+
+      <Command.Group>
+        <Link
+          href={`https://www.themoviedb.org/movie/${selectedMovie.id}`}
+          target="_blank"
+        >
+          <Item>
+            <ReadMoreIcon /> Read more
+          </Item>
+        </Link>
+        <Item>
+          <PlusIcon /> Add to...
+        </Item>
+      </Command.Group>
+    </>
+  );
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 function Item({
@@ -718,4 +825,9 @@ function Item({
       )}
     </Command.Item>
   );
+}
+
+function convertDateFormat(date: any) {
+  const [year, month, day] = date.split("-");
+  return `${day}/${month}/${year}`;
 }
