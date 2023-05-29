@@ -225,8 +225,8 @@ export function CommandMenu() {
   const [posterBasePath, setPosterBasePath] = React.useState<string>("");
 
   // TMDB configuration
-  const { data } = useQuery({
-    queryKey: [],
+  const configurationQuery = useQuery({
+    queryKey: ["configuration"],
     queryFn: async () => {
       const res = await fetch(
         "https://api.themoviedb.org/3/configuration",
@@ -365,7 +365,7 @@ export function CommandMenu() {
 
   return (
     <Command
-      shouldFilter={activePage !== "ask AI"}
+      shouldFilter={activePage !== "ask AI" && activePage !== "current"}
       ref={ref}
       onKeyDown={(e: React.KeyboardEvent) => {
         if (e.key === "Enter") {
@@ -403,7 +403,7 @@ export function CommandMenu() {
           disabled={isLoading}
           readOnly={activePage === "current"}
           placeholder={
-            activePage === "movies"
+            activePage === "movies" || "current"
               ? "Browse Popular Movies..."
               : activePage === "ask AI"
               ? "Ask AI for recommendations..."
@@ -415,14 +415,12 @@ export function CommandMenu() {
               ? "Manage Watched List..."
               : activePage === "theme"
               ? "Change Theme..."
-              : activePage === "current"
-              ? selectedMovie?.title
               : "What do you want to do?"
           }
           onValueChange={(value) => {
             setInputValue(value);
           }}
-          value={inputValue}
+          value={activePage === "current" ? selectedMovie?.title : inputValue}
           onKeyDown={(e: React.KeyboardEvent) => {
             if (activePage === "ask AI" && e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
@@ -766,6 +764,34 @@ function MoviePage({
   const formattedDate = convertDateFormat(selectedMovie.release_date);
   const movieUrl = `https://www.themoviedb.org/movie/${selectedMovie.id}`;
 
+  const [genresArray, setGenresArray] = React.useState<string[]>([]);
+  const genres: string = genresArray.join(", ");
+
+  const genresQuery = useQuery({
+    queryKey: ["genres"],
+    queryFn: async () => {
+      const res = await fetch(
+        `https://api.themoviedb.org/3/movie/${selectedMovie.id}?language=en-US`,
+        options
+      );
+
+      return res.json();
+    },
+    onSuccess: (data) => {
+      for (let i = 0; i < data.genres.length; i++) {
+        const { name } = data.genres[i];
+
+        setGenresArray((prev) => [...prev, name]);
+      }
+    },
+    onError: () => {
+      toast.error(
+        "Something went wrong retrieving the genres. Please try again later."
+      );
+    },
+    refetchOnWindowFocus: false,
+  });
+
   return (
     <>
       <div className="movie-wrapper">
@@ -779,17 +805,17 @@ function MoviePage({
           draggable={false}
         />
         <div className="movie-info">
-          <div className="movie-date">{formattedDate}</div>
+          <div className="movie-date">
+            {formattedDate} {genres && `• ${genres}`}
+          </div>
           <div className="movie-overview">{selectedMovie.overview}</div>
         </div>
       </div>
 
       <Command.Group>
-        <Link href={movieUrl} target="_blank">
-          <Item onSelect={() => window.open(movieUrl, "_blank")}>
-            <ReadMoreIcon /> Read more
-          </Item>
-        </Link>
+        <Item onSelect={() => window.open(movieUrl, "_blank")}>
+          <ReadMoreIcon /> Read more
+        </Item>
         <Item>
           <PlusIcon /> Add to...
         </Item>
@@ -825,7 +851,7 @@ function Item({
   );
 }
 
-function convertDateFormat(date: any) {
+function convertDateFormat(date: string) {
   const [year, month, day] = date.split("-");
   return `${day}/${month}/${year}`;
 }

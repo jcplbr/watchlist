@@ -239,6 +239,10 @@ header {
   text-transform: capitalize;
   font-weight: 500;
   cursor: pointer;
+  
+  &:last-child {
+    cursor: default;
+  }
 }
 
 [cmdk-item] {
@@ -405,14 +409,14 @@ header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 24px;
+  gap: 16px;
 
   .movie-info {
     margin-top: 8px;
     display: flex;
     flex-direction: column;
     gap: 8px;
-
+    line-height: 1.5;
     
     .movie-date {
       font-size: 12px;
@@ -422,7 +426,6 @@ header {
     .movie-overview {
       font-size: 14px;
       color: var(--gray12);
-      line-height: 1.5;
     }
   }
 
