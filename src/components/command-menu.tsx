@@ -222,34 +222,6 @@ export function CommandMenu() {
     refetchOnWindowFocus: false,
   });
 
-  const [posterBasePath, setPosterBasePath] = React.useState<string>("");
-
-  // TMDB configuration
-  const configurationQuery = useQuery({
-    queryKey: ["configuration"],
-    queryFn: async () => {
-      const res = await fetch(
-        "https://api.themoviedb.org/3/configuration",
-        options
-      );
-
-      return res.json();
-    },
-    onSuccess: (data) => {
-      const base_url = data.images.secure_base_url;
-      const poster_size = data.images.poster_sizes[6];
-      const poster_base_path = `${base_url}${poster_size}`;
-
-      setPosterBasePath(poster_base_path);
-    },
-    onError: () => {
-      toast.error(
-        "Something went wrong retrieving the poster. Please try again later."
-      );
-    },
-    refetchOnWindowFocus: false,
-  });
-
   const [windowWidth, setWindowWidth] = React.useState<number>(
     window.innerWidth
   );
@@ -496,10 +468,7 @@ export function CommandMenu() {
           />
         )}
         {activePage === "current" && (
-          <MoviePage
-            selectedMovie={selectedMovie!}
-            posterBasePath={posterBasePath}
-          />
+          <MoviePage selectedMovie={selectedMovie!} />
         )}
       </Command.List>
     </Command>
@@ -754,16 +723,43 @@ function Theme({
   );
 }
 
-function MoviePage({
-  selectedMovie,
-  posterBasePath,
-}: {
-  selectedMovie: MovieData;
-  posterBasePath: string;
-}) {
+function MoviePage({ selectedMovie }: { selectedMovie: MovieData }) {
   const formattedDate = convertDateFormat(selectedMovie.release_date);
   const movieUrl = `https://www.themoviedb.org/movie/${selectedMovie.id}`;
 
+  // TMDB configuration
+  const [posterBasePath, setPosterBasePath] = React.useState<string>("");
+  const [loading, setLoading] = React.useState<boolean>(false);
+
+  const configurationQuery = useQuery({
+    queryKey: ["configuration"],
+    queryFn: async () => {
+      setLoading(true);
+
+      const res = await fetch(
+        "https://api.themoviedb.org/3/configuration",
+        options
+      );
+
+      return res.json();
+    },
+    onSuccess: (data) => {
+      const base_url = data.images.secure_base_url;
+      const poster_size = data.images.poster_sizes[6];
+      const poster_base_path = `${base_url}${poster_size}`;
+
+      setPosterBasePath(poster_base_path);
+      setLoading(false);
+    },
+    onError: () => {
+      toast.error(
+        "Something went wrong retrieving the poster. Please try again later."
+      );
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  // TMDB movie genres
   const [genresArray, setGenresArray] = React.useState<string[]>([]);
   const genres: string = genresArray.join(", ");
 
@@ -794,25 +790,38 @@ function MoviePage({
 
   return (
     <>
-      <div className="movie-wrapper">
-        <Image
-          src={`${posterBasePath}${selectedMovie.poster_path}`}
-          width={720}
-          height={1080}
-          alt={`${selectedMovie.title} poster`}
-          referrerPolicy="no-referrer"
-          className="movie-poster"
-          draggable={false}
-        />
-        <div className="movie-info">
-          <div className="movie-date">
-            {formattedDate} {genres && `• ${genres}`}
-          </div>
-          <div className="movie-overview">{selectedMovie.overview}</div>
-        </div>
-      </div>
-
       <Command.Group>
+        <div className="movie-wrapper">
+          {loading && (
+            <Command.Loading>
+              <Skeleton
+                width={125}
+                className="skeleton movie-poster"
+                baseColor="var(--grayA3)"
+                highlightColor="unset"
+              />
+            </Command.Loading>
+          )}
+          <Image
+            src={`${posterBasePath}${selectedMovie.poster_path}`}
+            width={720}
+            height={1080}
+            alt={`${selectedMovie.title} poster`}
+            referrerPolicy="no-referrer"
+            className="movie-poster"
+            draggable={false}
+          />
+
+          <div className="movie-info">
+            <div className="movie-date">
+              {formattedDate} {genres && `• ${genres}`}
+            </div>
+            <div className="movie-overview">{selectedMovie.overview}</div>
+          </div>
+        </div>
+      </Command.Group>
+
+      <Command.Group heading="Actions">
         <Item onSelect={() => window.open(movieUrl, "_blank")}>
           <ReadMoreIcon /> Read more
         </Item>
@@ -854,4 +863,8 @@ function Item({
 function convertDateFormat(date: string) {
   const [year, month, day] = date.split("-");
   return `${day}/${month}/${year}`;
+}
+
+function Loading() {
+  return <p>Loading</p>;
 }
