@@ -459,16 +459,17 @@ header {
 
 @media (max-width: 490px) {
   .movie-wrapper {
-    flex-direction: column;
-    gap: 8px;
     margin-bottom: 24px;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
 
     .movie-poster {
-      margin: auto
+      max-width: 150px;
     }
+  }
 
-    .movie-info {
-      margin-top: 16px;
-    }
+  .skeleton.movie-poster {
+    width: 150px!important;
   }
 }

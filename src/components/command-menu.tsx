@@ -792,7 +792,7 @@ function MoviePage({ selectedMovie }: { selectedMovie: MovieData }) {
     <>
       <Command.Group>
         <div className="movie-wrapper">
-          {loading && (
+          {loading ? (
             <Command.Loading>
               <Skeleton
                 width={125}
@@ -801,16 +801,17 @@ function MoviePage({ selectedMovie }: { selectedMovie: MovieData }) {
                 highlightColor="unset"
               />
             </Command.Loading>
+          ) : (
+            <Image
+              src={`${posterBasePath}${selectedMovie.poster_path}`}
+              width={720}
+              height={1080}
+              alt={`${selectedMovie.title} poster`}
+              referrerPolicy="no-referrer"
+              className="movie-poster"
+              draggable={false}
+            />
           )}
-          <Image
-            src={`${posterBasePath}${selectedMovie.poster_path}`}
-            width={720}
-            height={1080}
-            alt={`${selectedMovie.title} poster`}
-            referrerPolicy="no-referrer"
-            className="movie-poster"
-            draggable={false}
-          />
 
           <div className="movie-info">
             <div className="movie-date">
