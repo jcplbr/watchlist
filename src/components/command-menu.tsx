@@ -814,9 +814,13 @@ function MoviePage({ selectedMovie }: { selectedMovie: MovieData }) {
 
           <div className="movie-info">
             <div className="movie-date">
-              {formattedDate} {genres && `• ${genres}`}
+              <p>
+                {formattedDate} {genres && `• ${genres}`}
+              </p>
             </div>
-            <div className="movie-overview">{selectedMovie.overview}</div>
+            <div className="movie-overview">
+              <p>{selectedMovie.overview}</p>
+            </div>
           </div>
         </div>
       </Command.Group>
