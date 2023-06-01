@@ -26,24 +26,8 @@ import "react-loading-skeleton/dist/skeleton.css";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
 import Image from "next/image";
-import Link from "next/link";
-
-interface MovieData {
-  id: number;
-  title: string;
-  overview: string;
-  release_date: string;
-  poster_path: string;
-}
-
-// TMDB fetch options
-const options = {
-  method: "GET",
-  headers: {
-    accept: "application/json",
-    Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_TOKEN}`,
-  },
-};
+import { MovieData } from "@/types/movie.types";
+import { options } from "@/app/helpers/options";
 
 export function CommandMenu() {
   const ref = React.useRef<HTMLDivElement | null>(null);
