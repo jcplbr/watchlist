@@ -3,11 +3,14 @@
 import getMovies from "@/hooks/get-movies";
 import supabase from "@/lib/supabase";
 import Link from "next/link";
+import { useEffect } from "react";
 
 export const revalidate = 60;
 
 export default async function Movies() {
-  await getMovies();
+  useEffect(() => {
+    getMovies();
+  }, []);
 
   const { data: movies } = await supabase
     .from("movies")

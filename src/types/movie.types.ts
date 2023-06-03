@@ -4,5 +4,6 @@ export interface MovieData {
     overview: string;
     release_date: string;
     poster_path: string;
-    popularity: number
+    popularity: number;
+    current_list: string
 }
