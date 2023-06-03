@@ -13,9 +13,7 @@ export const revalidate = 60;
 async function fetchMovies() {
   const { data: movies } = await supabase
     .from("movies")
-    .select(
-      "id, title, overview, release_date, poster_path, popularity, current_list"
-    )
+    .select()
     .order("popularity", { ascending: false });
 
   return movies;

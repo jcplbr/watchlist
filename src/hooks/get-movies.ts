@@ -27,7 +27,7 @@ export default async function getMovies() {
         // Insert data into database
         const { data: insertedData } = await supabase
         .from("movies")
-        .insert(modifiedData);
+        .upsert(modifiedData);
     
         return modifiedData;
     }
@@ -55,7 +55,7 @@ export default async function getMovies() {
         // Insert data into database
         const { data: insertedData } = await supabase
         .from("movies")
-        .insert(modifiedData);
+        .upsert(modifiedData);
     
         return modifiedData;
     }
@@ -83,7 +83,7 @@ export default async function getMovies() {
         // Insert data into database
         const { data: insertedData } = await supabase
         .from("movies")
-        .insert(modifiedData);
+        .upsert(modifiedData);
     
         return modifiedData;
     }
@@ -111,7 +111,7 @@ export default async function getMovies() {
         // Insert data into database
         const { data: insertedData } = await supabase
         .from("movies")
-        .insert(modifiedData);
+        .upsert(modifiedData);
     
         return modifiedData;
     }
@@ -139,7 +139,7 @@ export default async function getMovies() {
         // Insert data into database
         const { data: insertedData } = await supabase
         .from("movies")
-        .insert(modifiedData);
+        .upsert(modifiedData);
     
         return modifiedData;
     }

@@ -195,7 +195,9 @@ export function CommandMenu() {
           disabled={isLoading}
           readOnly={activePage === "current"}
           placeholder={
-            activePage === "movies" || "current"
+            activePage === "home"
+              ? "What do you want to do?"
+              : activePage === "movies" || activePage === "current"
               ? "Browse Popular Movies..."
               : activePage === "ask AI"
               ? "Ask AI for recommendations..."
@@ -205,9 +207,7 @@ export function CommandMenu() {
               ? "Manage Watching List..."
               : activePage === "watched"
               ? "Manage Watched List..."
-              : activePage === "theme"
-              ? "Change Theme..."
-              : "What do you want to do?"
+              : "Change Theme..."
           }
           onValueChange={(value) => {
             setInputValue(value);
