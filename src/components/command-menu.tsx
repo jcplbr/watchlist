@@ -27,7 +27,7 @@ import { toast } from "sonner";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { MovieData } from "@/types/movie.types";
-import { options } from "@/app/helpers/options";
+import { options } from "@/helpers/options";
 
 export function CommandMenu() {
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -206,8 +206,8 @@ export function CommandMenu() {
     refetchOnWindowFocus: false,
   });
 
-  const [windowWidth, setWindowWidth] = React.useState<number>(
-    window.innerWidth
+  const [windowWidth, setWindowWidth] = React.useState<number>(() =>
+    typeof window !== "undefined" ? window.innerWidth : 0
   );
 
   React.useEffect(() => {
@@ -217,10 +217,14 @@ export function CommandMenu() {
       }
     }
 
-    window.addEventListener("resize", handleResize);
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", handleResize);
+    }
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      if (typeof window !== "undefined") {
+        window.removeEventListener("resize", handleResize);
+      }
     };
   }, []);
 
@@ -427,13 +431,19 @@ export function CommandMenu() {
         )}
         {activePage === "ask AI" && <AskAI />}
         {activePage === "to watch" && (
-          <ToWatch searchMovies={() => setPages([...pages, "movies"])} />
+          <ToWatch
+            searchMovies={() => setPages([...pages.slice(0, -1), "movies"])}
+          />
         )}
         {activePage === "watching" && (
-          <Watching searchMovies={() => setPages([...pages, "movies"])} />
+          <Watching
+            searchMovies={() => setPages([...pages.slice(0, -1), "movies"])}
+          />
         )}
         {activePage === "watched" && (
-          <Watched searchMovies={() => setPages([...pages, "movies"])} />
+          <Watched
+            searchMovies={() => setPages([...pages.slice(0, -1), "movies"])}
+          />
         )}
         {activePage === "theme" && (
           <Theme

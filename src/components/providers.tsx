@@ -12,6 +12,7 @@ interface ProvidersProps {
 
 const Providers: FC<ProvidersProps> = ({ children }) => {
   const queryClient = new QueryClient();
+
   return (
     <ThemeProvider>
       <div>

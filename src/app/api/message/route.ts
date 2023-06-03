@@ -1,6 +1,8 @@
-import { botPrompt } from '@/app/helpers/constants/bot-prompts'
+import { botPrompt } from '@/helpers/constants/bot-prompts'
 import { ChatGPTMessage, OpenAIStream, OpenAIStreamPayload } from '@/lib/openai-stream'
 import { MessageArraySchema } from "@/lib/validators/message"
+
+export const runtime = 'edge'
 
 export async function POST(req: Request) {
   const { messages } = await req.json()

@@ -1,6 +1,7 @@
-import { options } from "@/app/helpers/options";
+import { options } from "@/helpers/options";
 import supabase from "@/lib/supabase";
 import { MovieData } from "@/types/movie.types";
+import { toast } from "sonner";
 
 export default async function getMovies() {
     const getPageOne = async () => {

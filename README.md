@@ -2,14 +2,17 @@ Experiment done to practice with React and TypeScript.
 
 ## Features
 
+- Written in __TypeScript__
+- Database on __Supabase__
+- Validations using __Zod__
 - Command Menu with `cmdk`
-- Built with TypeScript
-- [TMDB](https://www.themoviedb.org/) integration
+- Dark mode with `next-themes`
+- Icons from [Lucide](https://lucide.dev/)
+- Integrated with [TMDB](https://www.themoviedb.org/)
+- Use of [ChatGPT API](https://openai.com/product) and [Vercel Edge Functions](https://vercel.com/features/edge-functions)
 - Real-time streamed chatbot responses
 - Optimistic updates for the best UX
 - Secured, rate-limited API routes to prevent abuse
-- Icons from [Lucide](https://lucide.dev/)
-- Theme toggle with `next-themes`
 
 ## Acknowledgements
 
