@@ -36,7 +36,7 @@ export default function Watchlist({
     };
 
     movies();
-  }, []);
+  }, [list]);
 
   return (
     <>

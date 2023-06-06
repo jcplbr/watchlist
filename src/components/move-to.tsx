@@ -43,7 +43,7 @@ export default function MoveTo({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [selectedMovie?.id]);
 
   async function changeToToWatch(newList: string) {
     const { data } = await supabase
