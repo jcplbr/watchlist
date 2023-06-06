@@ -7,15 +7,20 @@ import { toast } from "sonner";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import Image from "next/image";
-import { Item } from "./command-menu";
-import { PlusIcon, ReadMoreIcon } from "./icons";
+import { ArrowRightIcon, PlusIcon, ReadMoreIcon, TrashIcon } from "./icons";
+import Item from "@/helpers/cmdk-item";
+import supabase from "@/lib/supabase";
 
 export const revalidate = 60;
 
 export default function MoviePage({
   selectedMovie,
+  addTo,
+  moveTo,
 }: {
   selectedMovie: MovieData;
+  addTo: Function;
+  moveTo: Function;
 }) {
   const formattedDate = convertDateFormat(selectedMovie.release_date);
   const movieUrl = `https://www.themoviedb.org/movie/${selectedMovie.id}`;
@@ -79,6 +84,36 @@ export default function MoviePage({
     refetchOnWindowFocus: false,
   });
 
+  const [list, setList] = React.useState<string>(selectedMovie.current_list);
+
+  React.useEffect(() => {
+    const channel = supabase
+      .channel("channel")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "movies" },
+        (payload) => {
+          setList(payload.new.current_list);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  async function changeToNone() {
+    const { data } = await supabase
+      .from("movies")
+      .update({ current_list: "None" })
+      .eq("id", selectedMovie?.id);
+
+    toast.success(
+      `'${selectedMovie.title}' successfully removed from '${list}' List.`
+    );
+  }
+
   return (
     <>
       <Command.Group>
@@ -105,10 +140,13 @@ export default function MoviePage({
           )}
 
           <div className="movie-info">
-            <div className="movie-date">
-              <p>
-                {formattedDate} {genres && `• ${genres}`}
-              </p>
+            <div className="movie-header">
+              <div className="movie-date">
+                <p>{formattedDate}</p>
+                <p className="separator-dot">•</p>
+                <p>{genres && `${genres}`}</p>
+              </div>
+              {list !== "None" && <div cmdk-vercel-badge="">{list}</div>}
             </div>
             <div className="movie-overview">
               <p>{selectedMovie.overview}</p>
@@ -121,9 +159,25 @@ export default function MoviePage({
         <Item onSelect={() => window.open(movieUrl, "_blank")}>
           <ReadMoreIcon /> Read more
         </Item>
-        <Item>
-          <PlusIcon /> Add to...
-        </Item>
+        {list === "None" && (
+          <Item
+            onSelect={() => {
+              addTo();
+            }}
+          >
+            <PlusIcon /> Add to...
+          </Item>
+        )}
+        {list !== "None" && (
+          <>
+            <Item onSelect={() => moveTo()}>
+              <ArrowRightIcon /> Move to...
+            </Item>
+            <Item onSelect={() => changeToNone()}>
+              <TrashIcon /> Remove from {list} List
+            </Item>
+          </>
+        )}
       </Command.Group>
     </>
   );

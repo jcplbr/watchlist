@@ -13,10 +13,10 @@ import { MovieData } from "@/types/movie.types";
 import Home from "./home-section";
 import Movies from "./movies";
 import MoviePage from "./movie-page";
+import AddTo from "./add-to";
+import MoveTo from "./move-to";
 import AskAI from "./ask-ai";
-import ToWatch from "./to-watch-list";
-import Watching from "./watching-list";
-import Watched from "./watched-list";
+import Watchlist from "./watchlist";
 import Theme from "./theme-toggle";
 
 export function CommandMenu() {
@@ -196,7 +196,7 @@ export function CommandMenu() {
           readOnly={activePage === "current"}
           placeholder={
             activePage === "home"
-              ? "What do you want to do?"
+              ? "What would you like to do?"
               : activePage === "movies" || activePage === "current"
               ? "Browse Popular Movies..."
               : activePage === "ask AI"
@@ -207,6 +207,10 @@ export function CommandMenu() {
               ? "Manage Watching List..."
               : activePage === "watched"
               ? "Manage Watched List..."
+              : activePage === "add to"
+              ? "Add to..."
+              : activePage === "move to"
+              ? "Move to..."
               : "Change Theme..."
           }
           onValueChange={(value) => {
@@ -259,19 +263,41 @@ export function CommandMenu() {
             selectMovie={(movie: MovieData) => setSelectedMovie(movie)}
           />
         )}
+        {activePage === "current" && (
+          <MoviePage
+            selectedMovie={selectedMovie!}
+            addTo={() => setPages([...pages, "add to"])}
+            moveTo={() => setPages([...pages, "move to"])}
+          />
+        )}
+        {activePage === "add to" && (
+          <AddTo selectedMovie={selectedMovie!} popPage={() => popPage()} />
+        )}
+        {activePage === "move to" && (
+          <MoveTo selectedMovie={selectedMovie!} popPage={() => popPage()} />
+        )}
         {activePage === "ask AI" && <AskAI />}
         {activePage === "to watch" && (
-          <ToWatch
+          <Watchlist
+            list={"To Watch"}
+            moviePage={() => setPages([...pages, "current"])}
+            selectMovie={(movie: MovieData) => setSelectedMovie(movie)}
             searchMovies={() => setPages([...pages.slice(0, -1), "movies"])}
           />
         )}
         {activePage === "watching" && (
-          <Watching
+          <Watchlist
+            list={"Watching"}
+            moviePage={() => setPages([...pages, "current"])}
+            selectMovie={(movie: MovieData) => setSelectedMovie(movie)}
             searchMovies={() => setPages([...pages.slice(0, -1), "movies"])}
           />
         )}
         {activePage === "watched" && (
-          <Watched
+          <Watchlist
+            list={"Watched"}
+            moviePage={() => setPages([...pages, "current"])}
+            selectMovie={(movie: MovieData) => setSelectedMovie(movie)}
             searchMovies={() => setPages([...pages.slice(0, -1), "movies"])}
           />
         )}
@@ -291,37 +317,7 @@ export function CommandMenu() {
             }}
           />
         )}
-        {activePage === "current" && (
-          <MoviePage selectedMovie={selectedMovie!} />
-        )}
       </Command.List>
     </Command>
-  );
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-export function Item({
-  children,
-  shortcut,
-  onSelect = () => {},
-  className,
-}: {
-  children: React.ReactNode;
-  shortcut?: string;
-  onSelect?: (value: string) => void;
-  className?: string;
-}) {
-  return (
-    <Command.Item className={className} onSelect={onSelect}>
-      {children}
-      {shortcut && (
-        <div cmdk-vercel-shortcuts="">
-          {shortcut.split(" ").map((key) => {
-            return <kbd key={key}>{key}</kbd>;
-          })}
-        </div>
-      )}
-    </Command.Item>
   );
 }

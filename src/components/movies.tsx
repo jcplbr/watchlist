@@ -3,10 +3,10 @@ import supabase from "@/lib/supabase";
 import { MovieData } from "@/types/movie.types";
 import React from "react";
 import { Command } from "cmdk";
-import { Item } from "./command-menu";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { MovieIcon } from "./icons";
+import Item from "@/helpers/cmdk-item";
 
 export const revalidate = 60;
 

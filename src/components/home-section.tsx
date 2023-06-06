@@ -1,5 +1,4 @@
 import { Command } from "cmdk";
-import { Item } from "./command-menu";
 import {
   LaptopIcon,
   SearchIcon,
@@ -8,6 +7,7 @@ import {
   WatchedIcon,
   WatchingIcon,
 } from "./icons";
+import Item from "@/helpers/cmdk-item";
 
 export default function Home({
   searchMovies,

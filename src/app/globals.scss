@@ -95,7 +95,6 @@
 
 ::selection {
   background: var(--blue5);
-  // color: white;
 }
 
 html,
@@ -158,6 +157,9 @@ header {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 32px;
+
+  opacity: 0;
+  animation: appear .5s .8s ease-out forwards;
   
   h1 {
     font-size: 17px;
@@ -202,6 +204,9 @@ header {
   border: 1px solid var(--gray6);
   box-shadow: var(--cmdk-shadow);
   transition: transform 100ms ease;
+
+  opacity: 0;
+  animation: appear .5s ease-out forwards;
 
   [data-theme='dark'] & {
     background: rgba(22, 22, 22, 0.7);
@@ -414,14 +419,29 @@ header {
 
   .movie-info {
     width: 100%;
-    margin-top: 8px;
+    margin-top: 4px;
     display: flex;
     flex-direction: column;
     gap: 8px;
   
-    .movie-date {
-      font-size: 12px;
-      color: var(--gray11);
+    .movie-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-right: 8px;
+
+      .movie-date {
+        font-size: 12px;
+        color: var(--gray11);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      [cmdk-vercel-badge] {
+        cursor: text;
+        user-select: text;
+      }
     }
     
     .movie-overview {
@@ -436,6 +456,19 @@ header {
     width: 100%;
     height: auto;
     border-radius: 6px;
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0px);
+    filter: blur(0px);
   }
 }
 
@@ -462,10 +495,24 @@ header {
     margin-bottom: 24px;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 
     .movie-poster {
       max-width: 150px;
+    }
+
+    .movie-info {
+      gap: 12px;
+    }
+
+    .movie-date {
+      flex-direction: column;
+      align-items: flex-start!important;
+      margin-right: 24px;
+     
+      .separator-dot {
+        display: none;
+      }
     }
   }
 

@@ -8,7 +8,7 @@ Experiment done to practice with React and TypeScript.
 - Command Menu with `cmdk`
 - Dark mode with `next-themes`
 - Icons from [Lucide](https://lucide.dev/)
-- Integrated with [TMDB](https://www.themoviedb.org/)
+- Integration with [TMDB](https://www.themoviedb.org/)
 - Use of [ChatGPT API](https://openai.com/product) and [Vercel Edge Functions](https://vercel.com/features/edge-functions)
 - Real-time streamed chatbot responses
 - Optimistic updates for the best UX

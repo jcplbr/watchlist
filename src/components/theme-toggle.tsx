@@ -1,6 +1,6 @@
 import { Command } from "cmdk";
-import { Item } from "./command-menu";
 import { LaptopIcon, MoonIcon, SunIcon } from "./icons";
+import Item from "@/helpers/cmdk-item";
 
 export default function Theme({
   lightTheme,
