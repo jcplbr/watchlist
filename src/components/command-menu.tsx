@@ -28,12 +28,10 @@ export function CommandMenu() {
   const isHome = activePage === "home";
   const {
     messages,
-    isMessageUpdating,
     addMessage,
     removeMessage,
     updateMessage,
     setIsMessageUpdating,
-    clearChat,
   } = useContext(MessagesContext);
 
   const [selectedMovie, setSelectedMovie] = React.useState<MovieData>();
@@ -63,7 +61,7 @@ export function CommandMenu() {
   // AI chat
   const { mutate: sendMessage, isLoading } = useMutation({
     mutationKey: ["sendMessage"],
-    // Include message to later use in onMutate
+    // include message to later use it in onMutate
     mutationFn: async (_message: Message) => {
       const response = await fetch("/api/message", {
         method: "POST",
@@ -76,49 +74,47 @@ export function CommandMenu() {
       return response.body;
     },
     onMutate(message) {
-      if (inputValue === "clear") {
-        clearChat();
-        return { abort: true };
-      }
-
       addMessage(message);
     },
     onSuccess: async (stream) => {
       if (!stream) throw new Error("No stream");
-      // Construct new message to add
+
+      // construct new message to add
       const id = nanoid();
       const responseMessage: Message = {
         id,
         isUserMessage: false,
         text: "",
       };
-      // Add new message to state
+
+      // add new message to state
       addMessage(responseMessage);
+
       setIsMessageUpdating(true);
+
       const reader = stream.getReader();
       const decoder = new TextDecoder();
       let done = false;
+
       while (!done) {
         const { value, done: doneReading } = await reader.read();
         done = doneReading;
         const chunkValue = decoder.decode(value);
         updateMessage(id, (prev) => prev + chunkValue);
       }
-      // Clean up
+
+      // clean up
       setIsMessageUpdating(false);
       setInputValue("");
+
       setTimeout(() => {
-        if (windowWidth > 1024) {
-          inputRef.current?.focus();
-        }
+        inputRef.current?.focus();
       }, 10);
     },
     onError: (_, message) => {
-      toast.error("Something went wrong. Please try again later.");
+      toast.error("Something went wrong. Please try again.");
       removeMessage(message.id);
-      if (windowWidth > 1024) {
-        inputRef.current?.focus();
-      }
+      inputRef.current?.focus();
     },
   });
 

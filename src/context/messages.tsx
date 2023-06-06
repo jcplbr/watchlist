@@ -1,8 +1,14 @@
-import { Message } from "@/lib/validators/message";
+import { createContext, useState } from "react";
 import { nanoid } from "nanoid";
-import { ReactNode, createContext, useState } from "react";
-import { toast } from "sonner";
+import { Message } from "@/lib/validators/message";
 
+const defaultValue = [
+  {
+    id: nanoid(),
+    text: "Hello, how can I help you?",
+    isUserMessage: false,
+  },
+];
 export const MessagesContext = createContext<{
   messages: Message[];
   isMessageUpdating: boolean;
@@ -10,7 +16,6 @@ export const MessagesContext = createContext<{
   removeMessage: (id: string) => void;
   updateMessage: (id: string, updateFn: (prevText: string) => string) => void;
   setIsMessageUpdating: (isUpdating: boolean) => void;
-  clearChat: () => void;
 }>({
   messages: [],
   isMessageUpdating: false,
@@ -18,18 +23,11 @@ export const MessagesContext = createContext<{
   removeMessage: () => {},
   updateMessage: () => {},
   setIsMessageUpdating: () => {},
-  clearChat: () => {},
 });
 
-export function MessagesProvider({ children }: { children: ReactNode }) {
+export function MessagesProvider({ children }: { children: React.ReactNode }) {
+  const [messages, setMessages] = useState(defaultValue);
   const [isMessageUpdating, setIsMessageUpdating] = useState<boolean>(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: nanoid(),
-      isUserMessage: false,
-      text: "Hello, how can I help you?",
-    },
-  ]);
 
   const addMessage = (message: Message) => {
     setMessages((prev) => [...prev, message]);
@@ -48,22 +46,9 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
         if (message.id === id) {
           return { ...message, text: updateFn(message.text) };
         }
-
         return message;
       })
     );
-  };
-
-  const clearChat = () => {
-    setMessages([
-      {
-        id: nanoid(),
-        isUserMessage: false,
-        text: "Hello, how can I help you?",
-      },
-    ]);
-
-    toast("The chat has been cleared.");
   };
 
   return (
@@ -75,7 +60,6 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
         removeMessage,
         updateMessage,
         setIsMessageUpdating,
-        clearChat,
       }}
     >
       {children}

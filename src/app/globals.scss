@@ -459,6 +459,31 @@ header {
   }
 }
 
+/* Sonner toasts */
+[data-sonner-toast][data-type=success] {
+  background: hsl(143, 85%, 96%)!important;
+  border-color: hsl(145, 92%, 91%)!important;
+  color: hsl(140, 100%, 27%)!important;
+
+  [data-theme='dark'] & {
+    background: hsl(150, 100%, 6%)!important;
+    border-color: hsl(147, 100%, 12%)!important;
+    color: hsl(150, 86%, 65%)!important;
+  }
+}
+
+[data-sonner-toast][data-type=error] {
+  background: hsl(359, 100%, 97%)!important;
+  border-color: hsl(359, 100%, 94%)!important;
+  color: hsl(360, 100%, 45%)!important;
+
+  [data-theme='dark'] & {
+    background: hsl(358, 76%, 10%)!important;
+    border-color: hsl(357, 89%, 16%)!important;
+    color: hsl(358, 100%, 81%)!important;
+  }
+}
+
 @keyframes appear {
   from {
     opacity: 0;
