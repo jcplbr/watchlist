@@ -8,15 +8,11 @@ export async function middleware(req: NextRequest) {
   try {
     const { success } = await rateLimiter.limit(ip)
 
-    console.log('ip:', ip)
-    console.log('Success:', success)
-    
     if (!success) return new NextResponse('You are writing messages too fast.')
 
     return NextResponse.next()
   } catch (error) {
 
-    console.log('ip:', ip)
     console.log('Error:', error)
 
     return new NextResponse(
