@@ -6,7 +6,6 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Watchlist",
-  description: "Browse through thousands of movies and manage your watchlist.",
 };
 
 export default function RootLayout({
