@@ -14,7 +14,8 @@ async function fetchMovies() {
   const { data: movies } = await supabase
     .from("movies")
     .select()
-    .order("popularity", { ascending: false });
+    .order("popularity", { ascending: false })
+    .limit(100);
 
   return movies;
 }

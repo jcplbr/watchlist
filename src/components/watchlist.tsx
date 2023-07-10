@@ -29,7 +29,8 @@ export default function Watchlist({
         .from("movies")
         .select()
         .eq("current_list", list)
-        .order("popularity", { ascending: false });
+        .order("popularity", { ascending: false })
+        .limit(100);
 
       setMovies(movies ?? []);
       setLoading(false);
