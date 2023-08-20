@@ -1,33 +1,33 @@
-import { options } from "@/helpers/options";
-import { MovieData } from "@/types/movie.types";
-import { useQuery } from "@tanstack/react-query";
-import { Command } from "cmdk";
-import React from "react";
-import { toast } from "sonner";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-import Image from "next/image";
-import { ArrowRightIcon, PlusIcon, ReadMoreIcon, TrashIcon } from "./icons";
-import Item from "@/helpers/cmdk-item";
-import supabase from "@/lib/supabase";
+import { options } from "@/helpers/options"
+import { MovieData } from "@/types/movie.types"
+import { useQuery } from "@tanstack/react-query"
+import { Command } from "cmdk"
+import React from "react"
+import { toast } from "sonner"
+import Skeleton from "react-loading-skeleton"
+import "react-loading-skeleton/dist/skeleton.css"
+import Image from "next/image"
+import { ArrowRightIcon, PlusIcon, ReadMoreIcon, TrashIcon } from "./icons"
+import Item from "@/helpers/cmdk-item"
+import supabase from "@/lib/supabase"
 
-export const revalidate = 60;
+export const revalidate = 60
 
 export default function MoviePage({
   selectedMovie,
   addTo,
   moveTo,
 }: {
-  selectedMovie: MovieData;
-  addTo: Function;
-  moveTo: Function;
+  selectedMovie: MovieData
+  addTo: Function
+  moveTo: Function
 }) {
-  const formattedDate = convertDateFormat(selectedMovie.release_date);
-  const movieUrl = `https://www.themoviedb.org/movie/${selectedMovie.id}`;
+  const formattedDate = convertDateFormat(selectedMovie.release_date)
+  const movieUrl = `https://www.themoviedb.org/movie/${selectedMovie.id}`
 
   // TMDB configuration
-  const [posterBasePath, setPosterBasePath] = React.useState<string>("");
-  const [loading, setLoading] = React.useState<boolean>(true);
+  const [posterBasePath, setPosterBasePath] = React.useState<string>("")
+  const [loading, setLoading] = React.useState<boolean>(true)
 
   const configurationQuery = useQuery({
     queryKey: ["configuration"],
@@ -35,29 +35,29 @@ export default function MoviePage({
       const res = await fetch(
         "https://api.themoviedb.org/3/configuration",
         options
-      );
+      )
 
-      return res.json();
+      return res.json()
     },
     onSuccess: (data) => {
-      const base_url = data.images.secure_base_url;
-      const poster_size = data.images.poster_sizes[6];
-      const poster_base_path = `${base_url}${poster_size}`;
+      const base_url = data.images.secure_base_url
+      const poster_size = data.images.poster_sizes[6]
+      const poster_base_path = `${base_url}${poster_size}`
 
-      setPosterBasePath(poster_base_path);
-      setLoading(false);
+      setPosterBasePath(poster_base_path)
+      setLoading(false)
     },
     onError: () => {
       toast.error(
         "Something went wrong retrieving the poster. Please try again later."
-      );
+      )
     },
     refetchOnWindowFocus: false,
-  });
+  })
 
   // TMDB movie genres
-  const [genresArray, setGenresArray] = React.useState<string[]>([]);
-  const genres: string = genresArray.join(", ");
+  const [genresArray, setGenresArray] = React.useState<string[]>([])
+  const genres: string = genresArray.join(", ")
 
   const genresQuery = useQuery({
     queryKey: ["genres"],
@@ -65,26 +65,26 @@ export default function MoviePage({
       const res = await fetch(
         `https://api.themoviedb.org/3/movie/${selectedMovie.id}?language=en-US`,
         options
-      );
+      )
 
-      return res.json();
+      return res.json()
     },
     onSuccess: (data) => {
       for (let i = 0; i < data.genres.length; i++) {
-        const { name } = data.genres[i];
+        const { name } = data.genres[i]
 
-        setGenresArray((prev) => [...prev, name]);
+        setGenresArray((prev) => [...prev, name])
       }
     },
     onError: () => {
       toast.error(
         "Something went wrong retrieving the genres. Please try again later."
-      );
+      )
     },
     refetchOnWindowFocus: false,
-  });
+  })
 
-  const [list, setList] = React.useState<string>(selectedMovie.current_list);
+  const [list, setList] = React.useState<string>(selectedMovie.current_list)
 
   React.useEffect(() => {
     const channel = supabase
@@ -93,25 +93,25 @@ export default function MoviePage({
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "movies" },
         (payload) => {
-          setList(payload.new.current_list);
+          setList(payload.new.current_list)
         }
       )
-      .subscribe();
+      .subscribe()
 
     return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
+      supabase.removeChannel(channel)
+    }
+  }, [])
 
   async function changeToNone() {
     const { data } = await supabase
       .from("movies")
       .update({ current_list: "None" })
-      .eq("id", selectedMovie?.id);
+      .eq("id", selectedMovie?.id)
 
     toast.success(
       `'${selectedMovie.title}' successfully removed from '${list}' List.`
-    );
+    )
   }
 
   return (
@@ -134,8 +134,8 @@ export default function MoviePage({
               height={1080}
               alt={`${selectedMovie.title} poster`}
               referrerPolicy="no-referrer"
-              className="movie-poster"
               draggable={false}
+              className="movie-poster"
             />
           )}
 
@@ -162,7 +162,7 @@ export default function MoviePage({
         {list === "None" && (
           <Item
             onSelect={() => {
-              addTo();
+              addTo()
             }}
           >
             <PlusIcon /> Add to...
@@ -180,12 +180,12 @@ export default function MoviePage({
         )}
       </Command.Group>
     </>
-  );
+  )
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 function convertDateFormat(date: string) {
-  const [year, month, day] = date.split("-");
-  return `${day}/${month}/${year}`;
+  const [year, month, day] = date.split("-")
+  return `${day}/${month}/${year}`
 }
